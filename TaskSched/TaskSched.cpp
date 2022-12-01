@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "TaskSched.h"
 #include "MainFrame.h"
+#include "SecurityHelper.h"
 
 CAppModule _Module;
 
@@ -36,6 +37,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 	ATLASSERT(SUCCEEDED(hRes));
 
 	::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+	if (SecurityHelper::IsRunningElevated())
+		SecurityHelper::EnablePrivilege(SE_DEBUG_NAME);
 
 	int nRet = Run(lpCmdLine, nCmdShow);
 
