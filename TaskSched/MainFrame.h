@@ -1,7 +1,8 @@
 #pragma once
 
 #include "TaskHelper.h"
-#include "VirtualListView.h"
+#include <VirtualListView.h>
+#include <CustomSplitterWindow.h>
 
 class CMainFrame :
 	public CFrameWindowImpl<CMainFrame>,
@@ -20,7 +21,7 @@ public:
 	CString GetColumnText(HWND, int row, int col) const;
 	CString GetDetailsColumnText(HWND, int row, int col) const;
 
-	int GetRowImage(HWND, int row) const;
+	int GetRowImage(HWND, int row, int col) const;
 	void DoSort(const SortInfo* si);
 	void DoSortDetails(const SortInfo* si);
 	BOOL OnRightClickList(HWND, int row, int col, const POINT&);
@@ -117,8 +118,8 @@ private:
 	void UpdateUI();
 
 	CCommandBarCtrl m_CmdBar;
-	CSplitterWindow m_MainSplitter;
-	CHorSplitterWindow m_ListSplitter;
+	CCustomSplitterWindow m_MainSplitter;
+	CCustomHorSplitterWindow m_ListSplitter;
 	CMultiPaneStatusBarCtrl m_StatusBar;
 	CListViewCtrl m_List;
 	CTreeViewCtrlEx m_Tree;

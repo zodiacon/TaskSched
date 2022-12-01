@@ -90,7 +90,7 @@ CString CMainFrame::GetDetailsColumnText(HWND, int row, int col) const {
 	return col == 0 ? m_ItemDetails[row].Name : m_ItemDetails[row].Details;
 }
 
-int CMainFrame::GetRowImage(HWND h, int row) const {
+int CMainFrame::GetRowImage(HWND h, int row, int col) const {
 	if (h == m_Details)
 		return static_cast<int>(m_ItemDetails[row].Image);
 
@@ -114,32 +114,32 @@ void CMainFrame::DoSort(const SortInfo* si) {
 	auto col = cm->GetColumnTag<ColumnType>(si->SortColumn);
 	auto compare = [&](auto& item1, auto& item2) {
 		switch (col) {
-			case ColumnType::Name: return SortHelper::SortStrings(item1.Name, item2.Name, asc);
-			case ColumnType::Path: return SortHelper::SortStrings(item1.Path, item2.Path, asc);
-			case ColumnType::Status: return SortHelper::SortNumbers(GetTaskState(item1), GetTaskState(item2), asc);
+			case ColumnType::Name: return SortHelper::Sort(item1.Name, item2.Name, asc);
+			case ColumnType::Path: return SortHelper::Sort(item1.Path, item2.Path, asc);
+			case ColumnType::Status: return SortHelper::Sort(GetTaskState(item1), GetTaskState(item2), asc);
 			case ColumnType::RunningPid: 
 			{
 				DWORD p1, p2;
 				item1.spRunningTask->get_EnginePID(&p1);
 				item2.spRunningTask->get_EnginePID(&p2);
-				return SortHelper::SortNumbers(p1, p2, asc);
+				return SortHelper::Sort(p1, p2, asc);
 			}
 			case ColumnType::RunResults:
 			{
 				LONG r1, r2;
 				item1.spTask->get_LastTaskResult(&r1);
 				item1.spTask->get_LastTaskResult(&r2);
-				return SortHelper::SortNumbers(r1, r2, asc);
+				return SortHelper::Sort(r1, r2, asc);
 			}
-			case ColumnType::Author: return SortHelper::SortStrings(GetTaskAuthor(item1), GetTaskAuthor(item2), asc);
-			case ColumnType::Created: return SortHelper::SortStrings(GetTaskCreateDate(item1), GetTaskCreateDate(item2), asc);
-			case ColumnType::Triggers: return SortHelper::SortStrings(TaskHelper::GetTaskTriggers(item1.spTask), TaskHelper::GetTaskTriggers(item2.spTask), asc);
+			case ColumnType::Author: return SortHelper::Sort(GetTaskAuthor(item1), GetTaskAuthor(item2), asc);
+			case ColumnType::Created: return SortHelper::Sort(GetTaskCreateDate(item1), GetTaskCreateDate(item2), asc);
+			case ColumnType::Triggers: return SortHelper::Sort(TaskHelper::GetTaskTriggers(item1.spTask), TaskHelper::GetTaskTriggers(item2.spTask), asc);
 			case ColumnType::LastRun:
 			{
 				DATE d1, d2;
 				item1.spTask->get_LastRunTime(&d1);
 				item2.spTask->get_LastRunTime(&d2);
-				return SortHelper::SortNumbers(d1, d2, asc);
+				return SortHelper::Sort(d1, d2, asc);
 			}
 			case ColumnType::NextRun:
 			{
@@ -152,7 +152,7 @@ void CMainFrame::DoSort(const SortInfo* si) {
 					item2.spTask->get_NextRunTime(&d2);
 					item2.NextRun = d2;
 				}
-				return SortHelper::SortNumbers(d1, d2, asc);
+				return SortHelper::Sort(d1, d2, asc);
 			}
 		}
 		return false;
@@ -167,8 +167,8 @@ void CMainFrame::DoSort(const SortInfo* si) {
 void CMainFrame::DoSortDetails(const SortInfo* si) {
 	std::sort(m_ItemDetails.begin(), m_ItemDetails.end(), [&](const auto& d1, const auto& d2) {
 		switch (si->SortColumn) {
-			case 0: return SortHelper::SortStrings(d1.Name, d2.Name, si->SortAscending);
-			case 1: return SortHelper::SortStrings(d1.Details, d2.Details, si->SortAscending);
+			case 0: return SortHelper::Sort(d1.Name, d2.Name, si->SortAscending);
+			case 1: return SortHelper::Sort(d1.Details, d2.Details, si->SortAscending);
 		}
 		return false;
 		});
@@ -223,10 +223,10 @@ LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	CreateSimpleStatusBar(ATL_IDS_IDLEMESSAGE, WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | SBARS_SIZEGRIP | SBT_TOOLTIPS);
 	m_StatusBar.SubclassWindow(m_hWndStatusBar);
 
-	m_hWndClient = m_MainSplitter.Create(m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+	m_hWndClient = m_MainSplitter.Create(m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 
 	m_Tree.Create(m_MainSplitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-		TVS_HASBUTTONS | TVS_LINESATROOT | TVS_HASLINES | TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
+		TVS_HASBUTTONS | TVS_LINESATROOT | TVS_HASLINES | TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS, 0);
 	{
 		CImageList images;
 		images.Create(16, 16, ILC_COLOR32, 4, 4);
@@ -246,7 +246,7 @@ LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	m_MainSplitter.UpdateSplitterLayout();
 
 	m_List.Create(m_ListSplitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
-		| LVS_OWNERDATA | LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE, TaskListId);
+		| LVS_OWNERDATA | LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS, 0, TaskListId);
 	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_INFOTIP);
 	{
 		CImageList images;
@@ -260,7 +260,7 @@ LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	}
 
 	m_Details.Create(m_ListSplitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
-		| LVS_OWNERDATA | LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE, DetailsListId);
+		| LVS_OWNERDATA | LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS, 0, DetailsListId);
 	m_Details.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_INFOTIP);
 	{
 		CImageList images;

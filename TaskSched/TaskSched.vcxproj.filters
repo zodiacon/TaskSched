@@ -45,22 +45,10 @@
     <ClInclude Include="SecurityHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="IconHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
     <ClInclude Include="TaskHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="ComHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="ColumnManager.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="VirtualListView.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="SortHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="TaskGeneralPage.h">
@@ -80,20 +68,11 @@
     <ClCompile Include="AboutDlg.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="IconHelper.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
     <ClCompile Include="SecurityHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="TaskHelper.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ColumnManager.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
-    <ClCompile Include="SortHelper.cpp">
-      <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="TaskGeneralPage.cpp">
       <Filter>Dialogs</Filter>
